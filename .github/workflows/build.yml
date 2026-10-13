@@ -27,7 +27,7 @@ jobs:
         run: |
           wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s -- 23 noble
           sudo apt-get install -y --no-install-recommends \
-            clang-23 lld-23 llvm-23-dev ninja-build cmake \
+            clang-23 lld-23 llvm-23-dev ninja-build cmake nasm \
             libssl-dev liblz4-dev libzstd-dev libicu-dev \
             g++-14 libstdc++-14-dev
           # symlink clang-23 to front
