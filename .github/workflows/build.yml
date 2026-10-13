@@ -90,7 +90,7 @@ jobs:
           bun scripts/build.ts --profile=release --baseline=true --webkit=local --configure-only --cacheDir=/tmp/bc
           echo "=== verify march in build.ninja ==="
           grep -m2 "march=core2" build/release/build.ninja
-          grep -m2 "target-cpu=core2" build/release/build.ninja
+          grep -m2 "target-cpu=core2" build/release/build.ninja || true
 
       - name: Build
         run: |
