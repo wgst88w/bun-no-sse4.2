@@ -100,6 +100,7 @@ jobs:
           export RUSTUP_TOOLCHAIN=nightly-2026-05-06
           export CC=/usr/lib/llvm-23/bin/clang
           export CXX=/usr/lib/llvm-23/bin/clang++
+          export BUN_WEBKIT_PATH=/tmp/WebKit
           ninja -C build/release bun-profile
           ls -lh build/release/bun-profile
 
