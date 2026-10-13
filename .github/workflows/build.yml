@@ -1,4 +1,4 @@
-name: Build Bun (barcelona, no SSE4.2)
+name: Build Bun (core2, no SSE4.2)
 
 on:
   workflow_dispatch:
@@ -56,17 +56,17 @@ jobs:
           cd /tmp/bun
           git rev-parse --short HEAD
 
-      - name: Apply barcelona patches
+      - name: Apply core2 patches
         run: |
           cd /tmp/bun
-          # Patch 1: C/C++ codegen target. flags.ts: -march=nehalem -> barcelona
-          sed -i 's/"-march=nehalem"/"-march=barcelona"/' scripts/build/flags.ts
-          # Patch 2: Rust crates target-cpu. rust.ts: "nehalem" -> "barcelona"
-          sed -i 's/? "nehalem"/? "barcelona"/' scripts/build/rust.ts
+          # Patch 1: C/C++ codegen target. flags.ts: -march=nehalem -> core2
+          sed -i 's/"-march=nehalem"/"-march=core2"/' scripts/build/flags.ts
+          # Patch 2: Rust crates target-cpu. rust.ts: "nehalem" -> "core2"
+          sed -i 's/? "nehalem"/? "core2"/' scripts/build/rust.ts
           echo "=== verify patches ==="
-          grep -n "barcelona" scripts/build/flags.ts scripts/build/rust.ts
+          grep -n "core2" scripts/build/flags.ts scripts/build/rust.ts
 
-      - name: Clone WebKit (local build, inherits -march=barcelona)
+      - name: Clone WebKit (local build, inherits -march=core2)
         run: |
           # Bun's WEBKIT_VERSION pins a commit; clone the fork and fetch it.
           git clone --filter=blob:none --no-checkout https://github.com/oven-sh/WebKit.git /tmp/WebKit
@@ -78,7 +78,7 @@ jobs:
           git checkout FETCH_HEAD
           git log --oneline -1
 
-      - name: Configure (release, baseline=barcelona, local WebKit)
+      - name: Configure (release, baseline=core2, local WebKit)
         run: |
           cd /tmp/bun
           source $HOME/.cargo/env
@@ -89,8 +89,8 @@ jobs:
           export BUN_WEBKIT_PATH=/tmp/WebKit
           bun scripts/build.ts --profile=release --baseline=true --webkit=local --configure-only --cacheDir=/tmp/bc
           echo "=== verify march in build.ninja ==="
-          grep -m2 "march=barcelona" build/release/build.ninja
-          grep -m2 "target-cpu=barcelona" build/release/build.ninja
+          grep -m2 "march=core2" build/release/build.ninja
+          grep -m2 "target-cpu=core2" build/release/build.ninja
 
       - name: Build
         run: |
@@ -107,8 +107,8 @@ jobs:
         run: |
           set -e
           mkdir -p /tmp/bun-dist/lib
-          cp /tmp/bun/build/release/bun-profile /tmp/bun-dist/bun-barcelona
-          strip /tmp/bun-dist/bun-barcelona || true
+          cp /tmp/bun/build/release/bun-profile /tmp/bun-dist/bun-core2
+          strip /tmp/bun-dist/bun-core2 || true
           # Bun's local-WebKit links system ICU (Ubuntu 24.04 = ICU 74) dynamically.
           # Bundle the runner's ICU 74 libs + a wrapper that sets LD_LIBRARY_PATH.
           # (patchelf --set-rpath segfaults Bun's binary at runtime — Bun appends
@@ -119,7 +119,7 @@ jobs:
           printf '%s\n' '#!/bin/sh' \
             'DIR=$(cd "$(dirname "$0")" && pwd)' \
             'export LD_LIBRARY_PATH="$DIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"' \
-            'exec "$DIR/bun-barcelona" "$@"' > /tmp/bun-dist/bun
+            'exec "$DIR/bun-core2" "$@"' > /tmp/bun-dist/bun
           chmod +x /tmp/bun-dist/bun
           # sanity test via wrapper (sets LD_LIBRARY_PATH internally)
           cd /tmp/bun-dist
@@ -129,7 +129,7 @@ jobs:
       - name: Upload binary + ICU libs
         uses: actions/upload-artifact@v4
         with:
-          name: bun-barcelona
+          name: bun-core2
           path: /tmp/bun-dist/
           retention-days: 30
           compression-level: 0
