@@ -23,15 +23,15 @@ jobs:
           df -h /
           free -h
 
-      - name: Install clang-21, ninja, deps
+      - name: Install clang-23, ninja, deps
         run: |
-          wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s -- 21 noble
+          wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s -- 23 noble
           sudo apt-get install -y --no-install-recommends \
-            clang-21 lld-21 llvm-21-dev ninja-build cmake \
+            clang-23 lld-23 llvm-23-dev ninja-build cmake \
             libssl-dev liblz4-dev libzstd-dev libicu-dev \
             g++-14 libstdc++-14-dev
-          # symlink clang-21 to front
-          sudo ln -sf /usr/bin/clang-21 /usr/local/bin/clang
+          # symlink clang-23 to front
+          sudo ln -sf /usr/bin/clang-23 /usr/local/bin/clang
           sudo ln -sf /usr/bin/clang++-21 /usr/local/bin/clang++
           clang --version | head -1
           # enable 2-core ninja parallelism to fit RAM
@@ -82,10 +82,10 @@ jobs:
         run: |
           cd /tmp/bun
           source $HOME/.cargo/env
-          export PATH="/usr/lib/llvm-21/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$PATH"
+          export PATH="/usr/lib/llvm-23/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$PATH"
           export RUSTUP_TOOLCHAIN=nightly-2026-05-06
-          export CC=/usr/lib/llvm-21/bin/clang
-          export CXX=/usr/lib/llvm-21/bin/clang++
+          export CC=/usr/lib/llvm-23/bin/clang
+          export CXX=/usr/lib/llvm-23/bin/clang++
           export BUN_WEBKIT_PATH=/tmp/WebKit
           bun scripts/build.ts --profile=release --baseline=true --webkit=local --configure-only --cacheDir=/tmp/bc
           echo "=== verify march in build.ninja ==="
@@ -96,10 +96,10 @@ jobs:
         run: |
           cd /tmp/bun
           source $HOME/.cargo/env
-          export PATH="/usr/lib/llvm-21/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$PATH"
+          export PATH="/usr/lib/llvm-23/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$PATH"
           export RUSTUP_TOOLCHAIN=nightly-2026-05-06
-          export CC=/usr/lib/llvm-21/bin/clang
-          export CXX=/usr/lib/llvm-21/bin/clang++
+          export CC=/usr/lib/llvm-23/bin/clang
+          export CXX=/usr/lib/llvm-23/bin/clang++
           ninja -C build/release bun-profile
           ls -lh build/release/bun-profile
 
