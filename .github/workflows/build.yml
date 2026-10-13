@@ -66,7 +66,6 @@ jobs:
           echo "=== verify patches ==="
           grep -n "core2" scripts/build/flags.ts scripts/build/rust.ts
           # libspng: use SSE2 instead of SSE4.1 for Core 2 / Penryn CPUs
-          sed -i 's/-DSPNG_SSE=4/-DSPNG_SSE=2/g' build/release/build.ninja
 
       - name: Clone WebKit (local build, inherits -march=core2)
         run: |
@@ -79,6 +78,14 @@ jobs:
           git fetch --depth 1 origin "$WK_SHA"
           git checkout FETCH_HEAD
           git log --oneline -1
+
+      - name: Inspect libspng SSE configuration
+        run: |
+          cd /tmp/bun
+          echo "=== libspng SSE definitions ==="
+          grep -R -n -E 'SPNG_SSE|_mm_blendv_epi8' vendor/libspng 2>/dev/null | head -100 || true
+          echo "=== libspng build configuration ==="
+          grep -R -n -E 'SPNG_SSE|libspng' scripts/build vendor/libspng/CMakeLists.txt vendor/libspng/meson.build 2>/dev/null | head -100 || true
 
       - name: Configure (release, baseline=core2, local WebKit)
         run: |
@@ -94,9 +101,7 @@ jobs:
           grep -m2 "march=core2" build/release/build.ninja
           grep -m2 "target-cpu=core2" build/release/build.ninja || true
           # Force libspng to use SSE2 rather than SSE4.1.
-          sed -i 's/-DSPNG_SSE=4/-DSPNG_SSE=2/g' build/release/build.ninja
           echo "=== verify libspng SSE setting ==="
-          grep -n -m3 "SPNG_SSE" build/release/build.ninja
 
       - name: Build
         run: |
