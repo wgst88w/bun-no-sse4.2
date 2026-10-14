@@ -116,6 +116,14 @@ jobs:
           export CC=/usr/lib/llvm-23/bin/clang
           export CXX=/usr/lib/llvm-23/bin/clang++
           export BUN_WEBKIT_PATH=/tmp/WebKit
+          echo "=== patch libspng SSE setting ==="
+          grep -n -m5 -- "-DSPNG_SSE=4" build/release/build.ninja
+          sed -i 's/-DSPNG_SSE=4/-DSPNG_SSE=2/g' build/release/build.ninja
+          if grep -q -- "-DSPNG_SSE=4" build/release/build.ninja; then
+            echo "ERROR: SSE4.1 setting remains in build.ninja"
+            exit 1
+          fi
+          grep -n -m5 -- "-DSPNG_SSE=2" build/release/build.ninja
           ninja -C build/release bun-profile
           ls -lh build/release/bun-profile
 
