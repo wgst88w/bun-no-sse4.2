@@ -107,6 +107,16 @@ jobs:
           # Force libspng to use SSE2 rather than SSE4.1.
           echo "=== verify libspng SSE setting ==="
 
+      - name: Diagnose libspng build flags
+        run: |
+          cd /tmp/bun
+          echo "=== generated Ninja references ==="
+          grep -n -i -m20 'spng\|sse4' build/release/build.ninja || true
+          echo "=== source configuration references ==="
+          grep -R -n -E 'SPNG_SSE|_mm_blendv_epi8' vendor/libspng 2>/dev/null | head -100 || true
+          echo "=== build system references ==="
+          grep -R -n 'SPNG_SSE' scripts vendor/libspng/CMakeLists.txt vendor/libspng/meson.build 2>/dev/null | head -100 || true
+
       - name: Build
         run: |
           cd /tmp/bun
@@ -116,14 +126,6 @@ jobs:
           export CC=/usr/lib/llvm-23/bin/clang
           export CXX=/usr/lib/llvm-23/bin/clang++
           export BUN_WEBKIT_PATH=/tmp/WebKit
-          echo "=== patch libspng SSE setting ==="
-          grep -n -m5 -- "-DSPNG_SSE=4" build/release/build.ninja
-          sed -i 's/-DSPNG_SSE=4/-DSPNG_SSE=2/g' build/release/build.ninja
-          if grep -q -- "-DSPNG_SSE=4" build/release/build.ninja; then
-            echo "ERROR: SSE4.1 setting remains in build.ninja"
-            exit 1
-          fi
-          grep -n -m5 -- "-DSPNG_SSE=2" build/release/build.ninja
           ninja -C build/release bun-profile
           ls -lh build/release/bun-profile
 
