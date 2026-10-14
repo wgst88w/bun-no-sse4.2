@@ -100,6 +100,10 @@ jobs:
           echo "=== verify march in build.ninja ==="
           grep -m2 "march=core2" build/release/build.ninja
           grep -m2 "target-cpu=core2" build/release/build.ninja || true
+          # libspng: select SSE2 implementation for Pentium Dual-Core T4300
+          sed -i 's/-DSPNG_SSE=4/-DSPNG_SSE=2/g' build/release/build.ninja
+          echo "=== verify libspng uses SSE2 ==="
+          grep -n -m3 -- '-DSPNG_SSE=' build/release/build.ninja
           # Force libspng to use SSE2 rather than SSE4.1.
           echo "=== verify libspng SSE setting ==="
 
