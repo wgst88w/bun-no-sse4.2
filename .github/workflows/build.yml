@@ -65,6 +65,10 @@ jobs:
           sed -i 's/? "nehalem"/? "core2"/' scripts/build/rust.ts
           echo "=== verify patches ==="
           grep -n "core2" scripts/build/flags.ts scripts/build/rust.ts
+          # libspng: select SSE2 instead of SSE4.1
+          sed -i 's/SPNG_SSE: 4/SPNG_SSE: 1/' scripts/build/deps/libspng.ts
+          echo "=== verify libspng source setting ==="
+          grep -n "SPNG_SSE" scripts/build/deps/libspng.ts
           # libspng: use SSE2 instead of SSE4.1 for Core 2 / Penryn CPUs
 
       - name: Clone WebKit (local build, inherits -march=core2)
